@@ -1,0 +1,11 @@
+[
+  { "customerId": "C1", "serviceName": "S1", "occurredAt": "2023-10-25T10:05:00Z" },
+  { "customerId": "C1", "serviceName": "S1", "occurredAt": "2023-10-25T10:06:00Z" },
+  { "customerId": "C1", "serviceName": "S1", "occurredAt": "2023-10-25T10:07:00Z" },
+  { "customerId": "C1", "serviceName": "S1", "occurredAt": "2023-10-25T10:08:00Z" },
+  { "customerId": "C1", "serviceName": "S1", "occurredAt": "2023-10-25T10:09:00Z" },
+  { "customerId": "C1", "serviceName": "S2", "occurredAt": "2023-10-25T10:15:00Z" },
+  { "customerId": "C1", "serviceName": "S2", "occurredAt": "2023-10-25T10:16:00Z" },
+  { "customerId": "C1", "serviceName": "S2", "occurredAt": "2023-10-25T10:17:00Z" },
+  { "customerId": "C1", "serviceName": "S3", "occurredAt": "2023-10-25T10:20:00Z" }
+]

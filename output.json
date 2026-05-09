@@ -1,0 +1,78 @@
+[
+  {
+    "CustomerId": "C1",
+    "AvailableBalance": 86,
+    "Transactions": [
+      {
+        "OccurredAt": "2023-10-25T10:00:00Z",
+        "Type": "Purchase",
+        "Item": "Basic",
+        "Credits": 100,
+        "Status": "Approved"
+      },
+      {
+        "OccurredAt": "2023-10-25T10:05:00Z",
+        "Type": "Usage",
+        "Item": "S1",
+        "Credits": -1,
+        "Status": "Approved"
+      },
+      {
+        "OccurredAt": "2023-10-25T10:06:00Z",
+        "Type": "Usage",
+        "Item": "S1",
+        "Credits": -1,
+        "Status": "Approved"
+      },
+      {
+        "OccurredAt": "2023-10-25T10:07:00Z",
+        "Type": "Usage",
+        "Item": "S1",
+        "Credits": -1,
+        "Status": "Approved"
+      },
+      {
+        "OccurredAt": "2023-10-25T10:08:00Z",
+        "Type": "Usage",
+        "Item": "S1",
+        "Credits": -1,
+        "Status": "Approved"
+      },
+      {
+        "OccurredAt": "2023-10-25T10:09:00Z",
+        "Type": "Usage",
+        "Item": "S1",
+        "Credits": -1,
+        "Status": "Approved"
+      },
+      {
+        "OccurredAt": "2023-10-25T10:15:00Z",
+        "Type": "Usage",
+        "Item": "S2",
+        "Credits": -2,
+        "Status": "Approved"
+      },
+      {
+        "OccurredAt": "2023-10-25T10:16:00Z",
+        "Type": "Usage",
+        "Item": "S2",
+        "Credits": -2,
+        "Status": "Approved"
+      },
+      {
+        "OccurredAt": "2023-10-25T10:17:00Z",
+        "Type": "Usage",
+        "Item": "S2",
+        "Credits": -2,
+        "Status": "Approved"
+      },
+      {
+        "OccurredAt": "2023-10-25T10:20:00Z",
+        "Type": "Usage",
+        "Item": "S3",
+        "Credits": -3,
+        "Status": "Approved"
+      }
+    ]
+  }
+]
