@@ -79,33 +79,33 @@ graph TD
 
 ```mermaid
 flowchart TD
-    subgraph Client Tier
+    subgraph Client_Tier [Client Tier]
         C1[Client Applications]
         C2[IoT Devices / Systems]
     end
 
-    subgraph Ingestion Tier
+    subgraph Ingestion_Tier [Ingestion Tier]
         API[API Gateway / Fastify]
         Queue[Message Broker / Kafka]
     end
 
-    subgraph Processing Tier
+    subgraph Processing_Tier [Processing Tier]
         StreamProc[Stream Processor / Flink]
         Cache[(In-Memory Cache / Redis)]
     end
 
-    subgraph Data Tier
+    subgraph Data_Tier [Data Tier]
         DL[(Raw Data Lake / S3)]
         DW[(Analytics DB / ClickHouse)]
     end
 
-    subgraph Billing & Core Tier
+    subgraph Billing_Tier [Billing & Core Tier]
         Rating[Rating Engine]
         Ledger[(Revenue Ledger)]
         BillingSys[Billing & Invoicing API]
     end
     
-    subgraph External Systems
+    subgraph External_Systems [External Systems]
         ExtPay[Payment Gateway / Stripe]
         CRM[CRM System]
     end
@@ -137,7 +137,7 @@ flowchart LR
     Admin([Billing Administrator])
     
     %% System Boundary
-    subgraph Usage-Based Billing System
+    subgraph Usage_Based_Billing_System [Usage-Based Billing System]
         UC1(Send Usage Events)
         UC2(View Usage Dashboards)
         UC3(Manage Pricing Plans)
@@ -342,7 +342,7 @@ classDiagram
 ```mermaid
 flowchart TD
     subgraph K8s Cluster [Kubernetes Cluster]
-        subgraph Ingestion Pods
+        subgraph Ingestion_Pods [Ingestion Pods]
             App1[Fastify Server 1]
             App2[Fastify Server 2]
         end
@@ -512,7 +512,7 @@ classDiagram
 ### 8.4 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph Storage Tier (K8s)
+    subgraph Storage_Tier [Storage Tier (K8s)]
         S1[Python Storage Sink 1]
         S2[Python Storage Sink 2]
     end
@@ -521,11 +521,11 @@ flowchart TD
         K[(Broker Topic: usage-events)]
     end
     
-    subgraph AWS Cloud
+    subgraph AWS_Cloud [AWS Cloud]
         S3[(Amazon S3 / Data Lake)]
     end
     
-    subgraph Analytics Tier
+    subgraph Analytics_Tier [Analytics Tier]
         CH[(ClickHouse Cluster)]
     end
     
@@ -599,7 +599,7 @@ classDiagram
 ### 9.4 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph Rating Tier (K8s / CronJob)
+    subgraph Rating_Tier [Rating Tier (K8s / CronJob)]
         R1[Rating Processor 1]
     end
     
@@ -732,7 +732,7 @@ classDiagram
 ### 11.4 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph Notification Tier
+    subgraph Notification_Tier [Notification Tier]
         N1[Python Notifier Pod]
     end
     Kafka[(Kafka Notifications Topic)] --> N1
@@ -843,7 +843,7 @@ classDiagram
 ### 13.4 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph Mock Tier
+    subgraph Mock_Tier [Mock Tier]
         G1[Python Generator Script]
     end
     G1 --> Kafka[(Kafka ingress-events)]
@@ -890,7 +890,7 @@ classDiagram
 ### 14.4 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph Integration Tier
+    subgraph Integration_Tier [Integration Tier]
         E1[FastAPI Sync Worker]
     end
     Kafka[(Kafka invoices-generated)] --> E1
@@ -941,10 +941,10 @@ classDiagram
 ### 15.4 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph Frontend Tier
+    subgraph Frontend_Tier [Frontend Tier]
         UI[React Application (CDN/Vercel)]
     end
-    subgraph Backend Tier (K8s)
+    subgraph Backend_Tier [Backend Tier (K8s)]
         API[FastAPI Service]
     end
     UI -->|REST GET| API
