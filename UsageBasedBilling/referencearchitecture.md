@@ -906,3 +906,56 @@ erDiagram
         string sync_status
     }
 ```
+
+## 15. Implementation Details: Customer Experience and Control
+
+### 15.1 Overview
+The **Customer Experience and Control** layer provides end-users with visibility into their real-time usage and limits. A React frontend queries a FastAPI backend which streams real-time consumption data from the `usage-events` Kafka topic to provide an up-to-date burndown chart.
+
+### 15.2 Sequence Diagram
+```mermaid
+sequenceDiagram
+    participant React as Frontend UI
+    participant API as FastAPI Backend
+    participant Kafka as Topic (usage-events)
+
+    Kafka->>API: Background Poll (Cache updates)
+    React->>API: GET /api/usage/{customerId}
+    API-->>React: 200 OK (Real-time Usage JSON)
+    React->>React: Render Charts
+```
+
+### 15.3 Class Diagram
+```mermaid
+classDiagram
+    class FastAPIApp {
+        +get_customer_usage(customer_id) dict
+    }
+    class UsageConsumer {
+        -Consumer consumer
+        +run_once()
+    }
+    FastAPIApp --> UsageConsumer : runs as background task
+```
+
+### 15.4 Deployment Diagram
+```mermaid
+flowchart TD
+    subgraph Frontend Tier
+        UI[React Application (CDN/Vercel)]
+    end
+    subgraph Backend Tier (K8s)
+        API[FastAPI Service]
+    end
+    UI -->|REST GET| API
+    API -->|Polls| Kafka[(Kafka usage-events)]
+```
+
+### 15.5 Data Model
+```mermaid
+erDiagram
+    USAGE_DASHBOARD_RESPONSE {
+        string customer_id
+        json usage "Mapping of event_type to count"
+    }
+```
