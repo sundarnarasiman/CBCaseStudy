@@ -5,7 +5,9 @@ This reference architecture describes a highly scalable, real-time usage-based b
 
 The architecture follows a decoupled, event-driven pattern that separates raw usage ingestion from the rating and invoicing processes, supporting complex pricing structures, rapid iteration, and real-time customer transparency.
 
-## 2. Architecture Diagram
+## 2. System Diagrams
+
+### 2.1 Architecture Overview Diagram
 
 ```mermaid
 graph TD
@@ -71,6 +73,92 @@ graph TD
     %% Visibility
     D2 --> F2
     E2 --> F2
+```
+
+### 2.2 Component Diagram
+
+```mermaid
+flowchart TD
+    subgraph Client Tier
+        C1[Client Applications]
+        C2[IoT Devices / Systems]
+    end
+
+    subgraph Ingestion Tier
+        API[API Gateway / Fastify]
+        Queue[Message Broker / Kafka]
+    end
+
+    subgraph Processing Tier
+        StreamProc[Stream Processor / Flink]
+        Cache[(In-Memory Cache / Redis)]
+    end
+
+    subgraph Data Tier
+        DL[(Raw Data Lake / S3)]
+        DW[(Analytics DB / ClickHouse)]
+    end
+
+    subgraph Billing & Core Tier
+        Rating[Rating Engine]
+        Ledger[(Revenue Ledger)]
+        BillingSys[Billing & Invoicing API]
+    end
+    
+    subgraph External Systems
+        ExtPay[Payment Gateway / Stripe]
+        CRM[CRM System]
+    end
+
+    C1 -->|Usage Events| API
+    C2 -->|Usage Events| API
+    API -->|Validate & Publish| Queue
+    Queue -->|Consume| StreamProc
+    
+    StreamProc <-->|Dedupe & Fast Counters| Cache
+    StreamProc -->|Archive Raw| DL
+    StreamProc -->|Store Aggregates| DW
+    
+    DW -->|Query Usage| Rating
+    Rating -->|Apply Pricing| Ledger
+    Ledger -->|Generate Charges| BillingSys
+    
+    BillingSys -->|Sync & Invoice| ExtPay
+    BillingSys -->|Sync Customer| CRM
+```
+
+### 2.3 Use Case Diagram
+
+```mermaid
+flowchart LR
+    %% Actors
+    Cust([Customer])
+    Dev([Developer / System])
+    Admin([Billing Administrator])
+    
+    %% System Boundary
+    subgraph Usage-Based Billing System
+        UC1(Send Usage Events)
+        UC2(View Usage Dashboards)
+        UC3(Manage Pricing Plans)
+        UC4(View Invoices)
+        UC5(Process Payments)
+        UC6(Configure Real-time Alerts)
+    end
+    
+    %% Relationships
+    Dev --> UC1
+    Cust --> UC2
+    Cust --> UC4
+    Cust --> UC6
+    
+    Admin --> UC3
+    Admin --> UC4
+    
+    %% Stripe / External
+    Stripe([Payment Provider])
+    UC5 --> Stripe
+    UC4 -.->|Triggers| UC5
 ```
 
 ## 3. Core Components
