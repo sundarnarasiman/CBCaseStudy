@@ -470,3 +470,165 @@ erDiagram
         int count "Accumulated usage"
     }
 ```
+
+## 8. Implementation Details: Storage and Data Lakehouse
+
+### 8.1 Overview
+The **Storage and Data Lakehouse Layer** bridges the gap between raw streaming events and queryable analytical data. It consumes events from Kafka, uploading immutable raw JSON payloads to an **S3 Data Lake** for long-term auditing, while simultaneously upserting structured records into **ClickHouse** for high-speed, aggregative queries by the Rating system.
+
+### 8.2 Sequence Diagram
+```mermaid
+sequenceDiagram
+    participant Kafka as Event Stream (Kafka)
+    participant Storage as StorageProcessor
+    participant S3 as Data Lake (S3)
+    participant CH as Data Warehouse (ClickHouse)
+
+    Kafka->>Storage: Poll event
+    Storage->>S3: PutObject(Bucket, Key=raw_events/{id}.json)
+    S3-->>Storage: HTTP 200 OK
+    Storage->>CH: INSERT INTO usage_aggregates VALUES (...)
+    CH-->>Storage: OK
+```
+
+### 8.3 Class Diagram
+```mermaid
+classDiagram
+    class StorageProcessor {
+        -Consumer consumer
+        -S3Client s3_client
+        -ClickHouseClient ch_client
+        +__init__()
+        +save_raw_to_s3(event_data) bool
+        +save_aggregate_to_clickhouse(event_data) bool
+        +process_event(event_data)
+        +run()
+    }
+    
+    StorageProcessor --> S3Client : Uploads raw JSON
+    StorageProcessor --> ClickHouseClient : Inserts aggregations
+```
+
+### 8.4 Deployment Diagram
+```mermaid
+flowchart TD
+    subgraph Storage Tier (K8s)
+        S1[Python Storage Sink 1]
+        S2[Python Storage Sink 2]
+    end
+    
+    subgraph Kafka Cluster [Managed Kafka]
+        K[(Broker Topic: usage-events)]
+    end
+    
+    subgraph AWS Cloud
+        S3[(Amazon S3 / Data Lake)]
+    end
+    
+    subgraph Analytics Tier
+        CH[(ClickHouse Cluster)]
+    end
+    
+    K -->|Poll Events| S1
+    K -->|Poll Events| S2
+    
+    S1 -->|PutObject| S3
+    S2 -->|PutObject| S3
+    
+    S1 -->|Insert Batch| CH
+    S2 -->|Insert Batch| CH
+```
+
+### 8.5 Data Model
+```mermaid
+erDiagram
+    S3_RAW_OBJECT {
+        string key PK "raw_events/{idempotencyKey}.json"
+        json body "Full raw event payload"
+    }
+    
+    CLICKHOUSE_AGGREGATES {
+        string customer_id PK
+        string event_type PK
+        date usage_date PK
+        uint64 total_events "Accumulated event count per day"
+    }
+```
+
+## 9. Implementation Details: Rating and Revenue System
+
+### 9.1 Overview
+The **Rating and Revenue System** operates asynchronously, responding to billing triggers (e.g., end-of-month processes) published to Kafka. It reaches out to **ClickHouse** to retrieve aggregated usage data, calculates charges against a pricing catalog, and outputs finalized invoice documents to an **S3 Bucket**.
+
+### 9.2 Sequence Diagram
+```mermaid
+sequenceDiagram
+    participant Kafka as Trigger Stream (Kafka)
+    participant Rating as RatingProcessor
+    participant CH as Data Warehouse (ClickHouse)
+    participant S3 as Invoice Bucket (S3)
+
+    Kafka->>Rating: Poll billing-trigger event
+    Rating->>CH: SELECT sum(events) FROM aggregates WHERE customerId = X
+    CH-->>Rating: Return usage data
+    Rating->>Rating: Apply pricing catalog & rules
+    Rating->>Rating: Generate Invoice JSON
+    Rating->>S3: PutObject(Bucket, Key=invoices/{customer}_{period}.json)
+    S3-->>Rating: HTTP 200 OK
+```
+
+### 9.3 Class Diagram
+```mermaid
+classDiagram
+    class RatingProcessor {
+        -Consumer consumer
+        -ClickHouseClient ch_client
+        -S3Client s3_client
+        +__init__()
+        +fetch_usage(customer_id, start_date, end_date) List
+        +calculate_charges(usage_data) Tuple
+        +generate_and_save_invoice(customer_id, line_items, total) dict
+        +process_trigger(trigger_data)
+        +run()
+    }
+    
+    RatingProcessor --> ClickHouseClient : Fetches aggregates
+    RatingProcessor --> S3Client : Saves finalized invoice
+```
+
+### 9.4 Deployment Diagram
+```mermaid
+flowchart TD
+    subgraph Rating Tier (K8s / CronJob)
+        R1[Rating Processor 1]
+    end
+    
+    subgraph Kafka Cluster [Managed Kafka]
+        K[(Topic: billing-triggers)]
+    end
+    
+    subgraph Analytics Tier
+        CH[(ClickHouse Cluster)]
+    end
+    
+    subgraph AWS Cloud
+        S3[(Amazon S3 / Invoices)]
+    end
+    
+    K -->|Trigger Signal| R1
+    R1 -->|Query Data| CH
+    R1 -->|Write Invoice| S3
+```
+
+### 9.5 Data Model
+```mermaid
+erDiagram
+    S3_INVOICE_DOCUMENT {
+        string key PK "invoices/{customerId}_{period}.json"
+        string customer_id
+        string billing_period
+        json line_items "Array of charges per event type"
+        float total_amount
+        string status "e.g., generated"
+    }
+```

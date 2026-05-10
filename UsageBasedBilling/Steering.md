@@ -28,3 +28,28 @@
 - Create readme.md for Mediation and Metering Layer covering how to build, run and test it
 
 
+# Building Storage and Data Lakehouse
+- Build Storage and Data Lakehouse using Python
+- Use kafka streaming
+- Use s3 for raw event storage
+- Use clickhouse for aggregated storage
+- Create class diagram for Storage and Data Lakehouse and add it in reference architecture
+- Create deployment diagram for Storage and Data Lakehouse and add it in reference architecture
+- Create data model for Storage and Data Lakehouse and add it in reference architecture
+- Create Tests for Storage and Data Lakehouse
+- Create sequence daigram for Storage and Data Lakehouse and update it
+- Create readme.md for Storage and Data Lakehouse covering how to build, run and test it
+
+
+# Building Rating and Revenue System
+- Build Rating and Revenue System using Python
+- Use kafka streaming
+- Use s3 for raw event storage
+- Use clickhouse for aggregated storage
+- Create class diagram for Rating and Revenue System and add it in reference architecture
+- Create deployment diagram for Rating and Revenue System and add it in reference architecture
+- Create data model for Rating and Revenue System and add it in reference architecture
+- Create Tests for Rating and Revenue System
+- Create sequence daigram for Rating and Revenue System and update it
+- Create readme.md for Rating and Revenue System covering how to build, run and test it
+
