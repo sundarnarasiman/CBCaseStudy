@@ -122,3 +122,31 @@ sequenceDiagram
     BP-->>App: List<Customer>
     App->>App: Serialize Output to JSON
 ```
+
+### Deployment Diagram (GCP)
+This diagram illustrates how the billing solution can be deployed on Google Cloud Platform, utilizing Cloud Run for scalable compute and Cloud Storage for handling input and output JSON files.
+
+```mermaid
+flowchart LR
+    subgraph GCP [Google Cloud Platform]
+        direction LR
+        subgraph Storage_In [Input Cloud Storage Bucket]
+            P[pricing.json]
+            Pur[purchases.json]
+            U[usages.json]
+        end
+        
+        subgraph Compute [Cloud Run]
+            App[GravitonBilling Service Container]
+        end
+        
+        subgraph Storage_Out [Output Cloud Storage Bucket]
+            Out[output.json]
+        end
+        
+        P -->|Read| App
+        Pur -->|Read| App
+        U -->|Read| App
+        App -->|Write| Out
+    end
+```
