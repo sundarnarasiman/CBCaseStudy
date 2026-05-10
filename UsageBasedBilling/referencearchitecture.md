@@ -370,3 +370,103 @@ erDiagram
         json metadata "Additional flexible properties"
     }
 ```
+
+## 7. Implementation Details: Mediation and Metering Layer
+
+### 7.1 Overview
+The **Mediation and Metering Layer** is a Python-based processing engine that consumes raw events from Kafka. It ensures exactly-once semantics by deduplicating events using Redis and maintains high-speed counters for real-time usage tracking before data is eventually persisted into the Data Warehouse.
+
+### 7.2 Sequence Diagram
+```mermaid
+sequenceDiagram
+    participant Kafka as Event Stream (Kafka)
+    participant Processor as MediationProcessor
+    participant Redis as In-Memory Cache (Redis)
+    participant DB as Analytical DB (ClickHouse)
+
+    Kafka->>Processor: Poll events
+    loop For each event
+        Processor->>Redis: SETNX dedupe:{idempotencyKey} "1"
+        alt Key exists (Duplicate)
+            Redis-->>Processor: Returns 0
+            Processor->>Processor: Ignore event
+        else Key does not exist (New)
+            Redis-->>Processor: Returns 1
+            Processor->>Redis: EXPIRE dedupe:{idempotencyKey} 86400 (24h)
+            Processor->>Redis: INCR meter:{customerId}:{eventType}
+            Redis-->>Processor: Returns updated count
+            Processor->>DB: Batch/Flush event to Storage
+        end
+    end
+```
+
+### 7.3 Class Diagram
+```mermaid
+classDiagram
+    class MediationProcessor {
+        -Consumer consumer
+        -Redis redisClient
+        +__init__()
+        +deduplicate(idempotency_key) bool
+        +update_counter(customer_id, event_type) int
+        +process_event(event_data)
+        +run()
+    }
+    
+    class RedisClient {
+        +setnx(key, value)
+        +expire(key, time)
+        +incr(key)
+    }
+    
+    class KafkaConsumer {
+        +subscribe(topics)
+        +poll(timeout)
+    }
+    
+    MediationProcessor --> RedisClient : uses for fast path
+    MediationProcessor --> KafkaConsumer : consumes from
+```
+
+### 7.4 Deployment Diagram
+```mermaid
+flowchart TD
+    subgraph K8s Cluster [Kubernetes Cluster]
+        subgraph Worker Pods [Mediation Workers]
+            W1[Python Processor 1]
+            W2[Python Processor 2]
+            W3[Python Processor 3]
+        end
+        
+        W1 --> RedisMaster
+        W2 --> RedisMaster
+        W3 --> RedisMaster
+    end
+    
+    subgraph Kafka Cluster [Managed Kafka]
+        K[(Broker Topic: usage-events)]
+    end
+    
+    subgraph Cache Cluster [Managed Redis]
+        RedisMaster[(Redis Primary)]
+    end
+    
+    K -->|Poll Events| W1
+    K -->|Poll Events| W2
+    K -->|Poll Events| W3
+```
+
+### 7.5 Data Model
+```mermaid
+erDiagram
+    REDIS_DEDUPE_KEY {
+        string key PK "dedupe:{idempotencyKey}"
+        string value "1"
+        int ttl "86400 seconds"
+    }
+    
+    REDIS_METER_KEY {
+        string key PK "meter:{customerId}:{eventType}"
+        int count "Accumulated usage"
+    }
+```
