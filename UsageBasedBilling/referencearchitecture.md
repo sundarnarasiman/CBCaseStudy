@@ -306,3 +306,67 @@ fastify.post('/ingest', { schema: eventSchema }, async (request, reply) => {
     return reply.code(202).send({ status: 'accepted' });
 });
 ```
+
+### 6.6 Class Diagram
+```mermaid
+classDiagram
+    class IngestionServer {
+        +start()
+        +registerRoutes()
+    }
+    class EventController {
+        +ingestEvent(Request req, Reply reply)
+    }
+    class SchemaValidator {
+        +validate(EventPayload payload)
+    }
+    class KafkaProducer {
+        +connect()
+        +send(topic, message)
+    }
+    class EventPayload {
+        +String customerId
+        +String event
+        +DateTime timestamp
+        +String idempotencyKey
+        +Object metadata
+    }
+    
+    IngestionServer --> EventController : routes to
+    EventController --> SchemaValidator : uses
+    EventController --> KafkaProducer : delegates to
+    EventController ..> EventPayload : receives
+```
+
+### 6.7 Deployment Diagram
+```mermaid
+flowchart TD
+    subgraph K8s Cluster [Kubernetes Cluster]
+        subgraph Ingestion Pods
+            App1[Fastify Server 1]
+            App2[Fastify Server 2]
+        end
+        ALB[Load Balancer] --> App1
+        ALB --> App2
+    end
+    
+    subgraph Kafka Cluster [Managed Kafka (MSK / Confluent)]
+        K1[(Broker 1)]
+        K2[(Broker 2)]
+    end
+    
+    App1 -->|Produce| K1
+    App2 -->|Produce| K2
+```
+
+### 6.8 Data Model
+```mermaid
+erDiagram
+    USAGE_EVENT {
+        string customerId PK
+        string idempotencyKey UK "Unique Identifier for Retries"
+        string event "Type of event e.g., api_call"
+        datetime timestamp "When it occurred"
+        json metadata "Additional flexible properties"
+    }
+```
