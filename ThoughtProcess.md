@@ -79,7 +79,7 @@ This diagram outlines the primary use cases supported by the system from an exte
 ```mermaid
 flowchart LR
     actor User
-    subgraph Graviton Billing System
+    subgraph Graviton_Billing_System [Graviton Billing System]
         UC1(Read Pricing & Event Data)
         UC2(Process Purchase)
         UC3(Process Usage)
