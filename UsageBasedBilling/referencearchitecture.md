@@ -341,7 +341,7 @@ classDiagram
 ### 6.7 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph K8s Cluster [Kubernetes Cluster]
+    subgraph K8s_Cluster [Kubernetes Cluster]
         subgraph Ingestion_Pods [Ingestion Pods]
             App1[Fastify Server 1]
             App2[Fastify Server 2]
@@ -350,7 +350,7 @@ flowchart TD
         ALB --> App2
     end
     
-    subgraph Kafka Cluster [Managed Kafka (MSK / Confluent)]
+    subgraph Kafka_Cluster [Managed Kafka - MSK or Confluent]
         K1[(Broker 1)]
         K2[(Broker 2)]
     end
@@ -431,8 +431,8 @@ classDiagram
 ### 7.4 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph K8s Cluster [Kubernetes Cluster]
-        subgraph Worker Pods [Mediation Workers]
+    subgraph K8s_Cluster [Kubernetes Cluster]
+        subgraph Worker_Pods [Mediation Workers]
             W1[Python Processor 1]
             W2[Python Processor 2]
             W3[Python Processor 3]
@@ -443,11 +443,11 @@ flowchart TD
         W3 --> RedisMaster
     end
     
-    subgraph Kafka Cluster [Managed Kafka]
+    subgraph Kafka_Cluster [Managed Kafka]
         K[(Broker Topic: usage-events)]
     end
     
-    subgraph Cache Cluster [Managed Redis]
+    subgraph Cache_Cluster [Managed Redis]
         RedisMaster[(Redis Primary)]
     end
     
@@ -512,12 +512,12 @@ classDiagram
 ### 8.4 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph Storage_Tier [Storage Tier (K8s)]
+    subgraph Storage_Tier [Storage Tier - K8s]
         S1[Python Storage Sink 1]
         S2[Python Storage Sink 2]
     end
     
-    subgraph Kafka Cluster [Managed Kafka]
+    subgraph Kafka_Cluster [Managed Kafka]
         K[(Broker Topic: usage-events)]
     end
     
@@ -599,19 +599,19 @@ classDiagram
 ### 9.4 Deployment Diagram
 ```mermaid
 flowchart TD
-    subgraph Rating_Tier [Rating Tier (K8s / CronJob)]
+    subgraph Rating_Tier [Rating Tier - K8s or CronJob]
         R1[Rating Processor 1]
     end
     
-    subgraph Kafka Cluster [Managed Kafka]
+    subgraph Kafka_Cluster [Managed Kafka]
         K[(Topic: billing-triggers)]
     end
     
-    subgraph Analytics Tier
+    subgraph Analytics_Tier [Analytics Tier]
         CH[(ClickHouse Cluster)]
     end
     
-    subgraph AWS Cloud
+    subgraph AWS_Cloud [AWS Cloud]
         S3[(Amazon S3 / Invoices)]
     end
     
@@ -944,7 +944,7 @@ flowchart TD
     subgraph Frontend_Tier [Frontend Tier]
         UI[React Application (CDN/Vercel)]
     end
-    subgraph Backend_Tier [Backend Tier (K8s)]
+    subgraph Backend_Tier [Backend Tier - K8s]
         API[FastAPI Service]
     end
     UI -->|REST GET| API
