@@ -161,6 +161,43 @@ flowchart LR
     UC4 -.->|Triggers| UC5
 ```
 
+### 2.4 Domain and Sub-Domain Diagram
+
+```mermaid
+graph TD
+    subgraph BillingDomain [Usage-Based Billing Domain]
+        direction TB
+        
+        subgraph Ingestion [Event Ingestion & Metering Sub-Domain]
+            E1(Event Collection)
+            E2(Deduplication)
+            E3(Aggregation)
+        end
+        
+        subgraph Rating [Pricing & Rating Sub-Domain]
+            R1(Pricing Catalog)
+            R2(Rating Engine)
+        end
+        
+        subgraph Billing [Billing & Invoicing Sub-Domain]
+            B1(Revenue Ledger)
+            B2(Invoice Generation)
+            B3(Payment Processing)
+        end
+        
+        subgraph Customer [Customer Experience Sub-Domain]
+            C1(Usage Dashboards)
+            C2(Entitlements & Gating)
+            C3(Real-time Alerts)
+        end
+        
+        Ingestion -->|Aggregated Usage| Rating
+        Rating -->|Charges| Billing
+        Ingestion -->|Real-time Metrics| Customer
+        Billing -->|Invoice Data| Customer
+    end
+```
+
 ## 3. Core Components
 
 ### 3.1. Ingestion Layer
@@ -203,3 +240,39 @@ flowchart LR
 *   **Performance & Scalability:** Designed to process millions of events gracefully, essential for high-throughput domains like LLMs/AI, IoT, and heavy API usage.
 *   **Accuracy:** Robust infrastructure handles delayed events ("late-arriving" events) and ensures the Revenue Ledger is fundamentally accurate for compliance and accounting standard revenue recognition.
 *   **Flexibility:** "No schema lock-in" approach allows raw capture, meaning pricing models can pivot easily (e.g., moving from per-seat to per-token pricing) without needing to change how usage is instrumented.
+
+## 6. Implementation Details: Ingestion Layer
+
+### 6.1 Overview
+The **Ingestion Layer** is the entry point for all usage data. It must be highly performant, resilient, and capable of buffering large volumes of events before they are persisted or processed by the downstream metering engine.
+
+### 6.2 Technology Choices
+* **Framework:** **Node.js with Fastify**. Fastify is chosen for its extremely low overhead, fast routing, and high throughput capabilities compared to Express or other web frameworks, making it ideal for an ingestion gateway.
+* **Message Broker:** **Apache Kafka**. Kafka is used to stream the received events durably. It acts as a massive buffer, decoupling the ingestion gateway from the downstream metering and rating processes.
+
+### 6.3 Flow and Responsibilities
+1. **API Endpoint (`POST /events`):** Fastify exposes a lightweight endpoint that accepts usage events (e.g., `{ "customerId": "123", "event": "api_call", "timestamp": "...", "idempotencyKey": "..." }`).
+2. **Validation:** Basic schema validation (JSON Schema via Fastify) ensures malformed payloads are rejected immediately.
+3. **Kafka Producer:** The Fastify application uses a Kafka client (like `kafkajs`) to publish the validated event to a specific topic (e.g., `usage-events`).
+4. **Immediate Acknowledgment:** Once the event is safely handed off to Kafka, Fastify immediately returns a `202 Accepted` response to the client to ensure the client is not blocked.
+
+### 6.4 Implementation Blueprint
+A typical Fastify ingestion route integrated with Kafka:
+
+```javascript
+// Example Fastify route publishing to Kafka
+fastify.post('/ingest', { schema: eventSchema }, async (request, reply) => {
+    const eventPayload = request.body;
+    
+    // Produce event to Kafka topic
+    await kafkaProducer.send({
+        topic: 'usage-events',
+        messages: [
+            { key: eventPayload.customerId, value: JSON.stringify(eventPayload) }
+        ],
+    });
+    
+    // Acknowledge receipt immediately
+    return reply.code(202).send({ status: 'accepted' });
+});
+```
