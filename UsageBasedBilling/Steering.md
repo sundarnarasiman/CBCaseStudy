@@ -53,3 +53,61 @@
 - Create sequence daigram for Rating and Revenue System and update it
 - Create readme.md for Rating and Revenue System covering how to build, run and test it
 
+# Building API Gateway
+- Build API Gateway using FastAPI
+- Use Kafka streaming
+- Create class diagram for API Gateway and add it in reference architecture
+- Create deployment diagram for API Gateway and add it in reference architecture
+- Create data model for API Gateway and add it in reference architecture
+- Create Tests for API Gateway
+- Create sequence daigram for API Gateway and update it
+- Create readme.md for API Gateway covering how to build, run and test it
+
+# Building Idempotency Layer
+- Build Idempotency Layer using Redis
+- Use Kafka streaming
+- Create class diagram for Idempotency Layer and add it in reference architecture
+- Create deployment diagram for Idempotency Layer and add it in reference architecture
+- Create data model for Idempotency Layer and add it in reference architecture
+- Create Tests for Idempotency Layer
+- Create sequence daigram for Idempotency Layer and update it
+- Create readme.md for Idempotency Layer covering how to build, run and test it
+
+# Building Notification System
+- Build Notification System using Kafka and SMTP
+- Use Kafka streaming
+- Create class diagram for Notification System and add it in reference architecture
+- Create deployment diagram for Notification System and add it in reference architecture
+- Create data model for Notification System and add it in reference architecture
+- Create Tests for Notification System
+- Create sequence daigram for Notification System and update it
+- Create readme.md for Notification System covering how to build, run and test it
+
+# Building Customer Experience and Control
+- Build Customer Experience and Control using FastAPI and react
+- Use Kafka streaming
+- Create class diagram for Customer Experience and Control and add it in reference architecture
+- Create deployment diagram for Customer Experience and Control and add it in reference architecture
+- Create data model for Customer Experience and Control and add it in reference architecture
+- Create Tests for Customer Experience and Control
+- Create sequence daigram for Customer Experience and Control and update it
+- Create readme.md for Customer Experience and Control covering how to build, run and test it
+
+# Building Event Sources
+- Build Event Sources using Kafka
+- Create class diagram for Event Sources and add it in reference architecture
+- Create deployment diagram for Event Sources and add it in reference architecture
+- Create data model for Event Sources and add it in reference architecture
+- Create Tests for Event Sources
+- Create sequence daigram for Event Sources and update it
+- Create readme.md for Event Sources covering how to build, run and test it
+
+# Bulding External Integrations
+- Build External Integrations using FastAPI
+- Use Kafka streaming
+- Create class diagram for External Integrations and add it in reference architecture
+- Create deployment diagram for External Integrations and add it in reference architecture
+- Create data model for External Integrations and add it in reference architecture
+- Create Tests for External Integrations
+- Create sequence daigram for External Integrations and update it
+- Create readme.md for External Integrations covering how to build, run and test it
