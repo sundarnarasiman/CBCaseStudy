@@ -256,7 +256,37 @@ The **Ingestion Layer** is the entry point for all usage data. It must be highly
 3. **Kafka Producer:** The Fastify application uses a Kafka client (like `kafkajs`) to publish the validated event to a specific topic (e.g., `usage-events`).
 4. **Immediate Acknowledgment:** Once the event is safely handed off to Kafka, Fastify immediately returns a `202 Accepted` response to the client to ensure the client is not blocked.
 
-### 6.4 Implementation Blueprint
+### 6.4 Sequence Diagram
+The sequence below illustrates the fast, non-blocking ingestion path where the gateway validates the event and durably queues it in Kafka before responding to the client.
+
+```mermaid
+sequenceDiagram
+    participant Client as Application / Client
+    participant Fastify as API Gateway (Fastify)
+    participant Validator as JSON Schema Validator
+    participant Kafka as Message Broker (Kafka)
+    participant Consumer as Downstream Metering
+
+    Client->>Fastify: POST /ingest { event payload }
+    Fastify->>Validator: Validate Payload
+    
+    alt Invalid Payload
+        Validator-->>Fastify: Validation Error
+        Fastify-->>Client: 400 Bad Request
+    else Valid Payload
+        Validator-->>Fastify: Valid
+        Fastify->>Fastify: Generate Idempotency Key (if missing)
+        Fastify->>Kafka: Producer.send(topic, message)
+        Kafka-->>Fastify: ACK (Message durably stored)
+        Fastify-->>Client: 202 Accepted (idempotencyKey)
+    end
+    
+    %% Asynchronous Processing
+    Kafka-->>Consumer: Stream event asynchronously
+    Consumer->>Consumer: Deduplicate & Meter
+```
+
+### 6.5 Implementation Blueprint
 A typical Fastify ingestion route integrated with Kafka:
 
 ```javascript
